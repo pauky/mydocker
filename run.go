@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/pauky/mydocker/container"
-	"github.com/pauky/mydocker/cgroups/subsystems"
-	"github.com/pauky/mydocker/cgroups"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
-)
 
+	"github.com/pauky/mydocker/cgroups"
+	"github.com/pauky/mydocker/cgroups/subsystems"
+	"github.com/pauky/mydocker/container"
+	log "github.com/sirupsen/logrus"
+)
 
 func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 	parent, writePipe := container.NewParentProcess(tty)
@@ -27,6 +27,10 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()
+	mntURL := "/root/mnt/"
+	rootURL := "/root/"
+	container.DeleteWorkSpace(rootURL, mntURL)
+	os.Exit(0)
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
