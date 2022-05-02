@@ -19,7 +19,7 @@ func RunContainerInitProcess() error {
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
 
-	//setUpMount()
+	setUpMount()
 
 	log.Infof("looking path %s", cmdArray[0])
 	path, err := exec.LookPath(cmdArray[0])

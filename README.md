@@ -1,6 +1,12 @@
 # mydocker
 Build a container like docker for learning cloud native.
 
+## notice
+restore host proc after exit from mydocker.
+```
+sudo mount -t proc proc /proc
+```
+
 ## build
 ```
 go build
