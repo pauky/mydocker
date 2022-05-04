@@ -1,18 +1,18 @@
-# mydocker
+# Mydocker
 Build a container like docker for learning cloud native.
 
-## notice
+## Notice
 restore host proc after exit from mydocker.
 ```
 sudo mount -t proc proc /proc
 ```
 
-## build
+## Build
 ```
 go build
 ```
 
-## test
+## Usage
 show usage by using stress.
 ### memory limit
 ```
@@ -23,3 +23,14 @@ show usage by using stress.
 ```
 ./mydocker run -ti -cpushare 512 "stress --vm-bytes 200m --vm-keep -m 1"
 ```
+
+### volume
+```
+./mydocker run -ti -v /root/volume:/container-volume sh
+```
+
+### commit
+```
+./mydocker commit test-image
+```
+You can find file in `/root/test-image.tar`.
