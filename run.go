@@ -17,7 +17,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume str
 		return
 	}
 	if err := parent.Start(); err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 	// use mydocker-cgroup as cgroup name
 	cgroupManager := cgroups.NewCgroupManager("mydocker-cgroup")
@@ -26,11 +26,13 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume str
 	cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(comArray, writePipe)
-	parent.Wait()
-	mntURL := "/root/mnt/"
-	rootURL := "/root/"
-	container.DeleteWorkSpace(rootURL, mntURL, volume)
-	os.Exit(0)
+	if tty {
+		parent.Wait()
+		mntURL := "/root/mnt/"
+		rootURL := "/root/"
+		container.DeleteWorkSpace(rootURL, mntURL, volume)
+		os.Exit(0)
+	}
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
