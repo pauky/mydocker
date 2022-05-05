@@ -40,7 +40,12 @@ You can find file in `/root/test-image.tar`.
 ./mydocker run -d top
 ```
 
-### appoint name
+### appoint container name
 ```
 ./mydocker run -d top --name mydocker-1
+```
+
+### view log
+```
+./mydocker logs {your_container_name}
 ```
