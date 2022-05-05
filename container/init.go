@@ -14,17 +14,15 @@ import (
 
 func RunContainerInitProcess() error {
 	cmdArray := readUserCommand()
-	log.Infof("cmdArray %v", cmdArray)
 	if len(cmdArray) == 0 {
 		return fmt.Errorf("run container get user command error, cmdArray is nil")
 	}
 
 	setUpMount()
 
-	log.Infof("looking path %s", cmdArray[0])
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
-		log.Errorf("Exec loop path error %v", err)
+		log.Errorf("Exec loop path error %v, cmdArray[0]: %s", err, cmdArray[0])
 		return err
 	}
 	log.Infof("Find path %s", path)
@@ -36,6 +34,7 @@ func RunContainerInitProcess() error {
 
 func readUserCommand() []string {
 	pipe := os.NewFile(uintptr(3), "pipe")
+	defer pipe.Close()
 	msg, err := ioutil.ReadAll(pipe)
 	if err != nil {
 		log.Errorf("init read pipe error %v", err)

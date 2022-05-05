@@ -12,20 +12,23 @@ import (
 	"github.com/pauky/mydocker/cgroups"
 	"github.com/pauky/mydocker/cgroups/subsystems"
 	"github.com/pauky/mydocker/container"
+	"github.com/pauky/mydocker/network"
 	log "github.com/sirupsen/logrus"
 )
 
-func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerName, volume, imageName string, envSlice []string) {
+func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerName, volume, imageName string,
+	envSlice []string, nw string, portmapping []string) {
 	containerID := randStringBytes(10)
 	if containerName == "" {
 		containerName = containerID
 	}
 
-	parent, writePipe := container.NewParentProcess(tty, containerName, volume, imageName , envSlice)
+	parent, writePipe := container.NewParentProcess(tty, containerName, volume, imageName, envSlice)
 	if parent == nil {
 		log.Errorf("New parent process error")
 		return
 	}
+
 	if err := parent.Start(); err != nil {
 		log.Error(err)
 	}
@@ -37,13 +40,29 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerN
 		return
 	}
 
-	// use mydocker-cgroup as cgroup name
-	cgroupManager := cgroups.NewCgroupManager("mydocker-cgroup")
+	// use containerID as cgroup name
+	cgroupManager := cgroups.NewCgroupManager(containerID)
 	defer cgroupManager.Destroy()
 	cgroupManager.Set(res)
 	cgroupManager.Apply(parent.Process.Pid)
 
+	if nw != "" {
+		// config container network
+		network.Init()
+		containerInfo := &container.ContainerInfo{
+			Id:          containerID,
+			Pid:         strconv.Itoa(parent.Process.Pid),
+			Name:        containerName,
+			PortMapping: portmapping,
+		}
+		if err := network.Connect(nw, containerInfo); err != nil {
+			log.Errorf("Error Connect Network %v", err)
+			return
+		}
+	}
+
 	sendInitCommand(comArray, writePipe)
+
 	if tty {
 		parent.Wait()
 		deleteContainerInfo(containerName)
