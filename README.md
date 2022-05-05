@@ -34,3 +34,13 @@ show usage by using stress.
 ./mydocker commit test-image
 ```
 You can find file in `/root/test-image.tar`.
+
+### detach
+```
+./mydocker run -d top
+```
+
+### appoint name
+```
+./mydocker run -d top --name mydocker-1
+```
