@@ -49,3 +49,30 @@ You can find file in `/root/test-image.tar`.
 ```
 ./mydocker logs {your_container_name}
 ```
+
+### view status
+```
+./mydocker ps
+```
+
+### stop
+```
+./mydocker stop {your_container_name}
+```
+### remove
+```
+./mydocker rm {your_container_name}
+```
+
+### set env
+```
+./mydocker run -d --name test-3 -e test_env=glowry busybox top
+```
+
+check env
+```
+./mydocker exec test-3 sh
+
+env |grep test_env
+```
+

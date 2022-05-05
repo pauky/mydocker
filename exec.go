@@ -22,6 +22,7 @@ func ExecContainer(containerName string, comArray []string) {
 		log.Errorf("Exec container getContainerPidByName %s error %v", containerName, err)
 		return
 	}
+
 	cmdStr := strings.Join(comArray, " ")
 	log.Infof("container pid %s", pid)
 	log.Infof("command %s", cmdStr)
@@ -33,6 +34,8 @@ func ExecContainer(containerName string, comArray []string) {
 
 	os.Setenv(ENV_EXEC_PID, pid)
 	os.Setenv(ENV_EXEC_CMD, cmdStr)
+	containerEnvs := getEnvsByPid(pid)
+	cmd.Env = append(os.Environ(), containerEnvs...)
 
 	if err := cmd.Run(); err != nil {
 		log.Errorf("Exec container %s error %v", containerName, err)
@@ -51,4 +54,16 @@ func GetContainerPidByName(containerName string) (string, error) {
 		return "", err
 	}
 	return containerInfo.Pid, nil
+}
+
+func getEnvsByPid(pid string) []string {
+	path := fmt.Sprintf("/proc/%s/environ", pid)
+	contentBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Errorf("Read file %s error %v", path, err)
+		return nil
+	}
+	//env split by \u0000
+	envs := strings.Split(string(contentBytes), "\u0000")
+	return envs
 }
