@@ -69,6 +69,11 @@ func setUpMount() {
 }
 
 func pivotRoot(root string) error {
+	// systemd 加入linux之后, mount namespace 就变成 shared by default，
+	// 所以你必须显示声明你要这个新的mount namespace独立。
+	if err := syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
+		return fmt.Errorf("mount / private fail %v", err)
+	}
 	/**
 	  为了使当前root的老 root 和新 root 不在同一个文件系统下，我们把root重新mount了一次
 	  bind mount是把相同的内容换了一个挂载点的挂载方法
